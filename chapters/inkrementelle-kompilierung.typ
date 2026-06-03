@@ -329,5 +329,5 @@ jeder beobachtet nur den, den er tatsächlich im cache auch braucht, nicht das g
     - Constraints ermöglichen effiziente Validierung des Caches
 
     #set text(size: 0.75em)
-    (Diese Folien wurde in 726#h(0.166em)ms und mit Caching in 124#h(0.166em)ms kompiliert.)
+    (Diese Folien wurde in 2#h(0.166em)s und mit Caching in 120#h(0.166em)ms kompiliert.)
 ]

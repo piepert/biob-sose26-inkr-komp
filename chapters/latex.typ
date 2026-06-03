@@ -49,6 +49,13 @@
     - Rest mittels constrained Memoization speichern
     - durch Wirkungsfreiheit des Typst-Codes und im Compilerdesign besonders effektiv
 
-    #qr-code("https://typst.app", width: 3cm)
+    #set align(center)
+    #stack(dir: ltr, spacing: 3cm)[
+        Typst:\
+        #box(qr-code("https://github.com/typst/typst"), width: 4cm)
+    ][
+        Diese Folien:\
+        #box(qr-code("https://github.com/piepert/biob-sose26-inkr-komp", width: 4cm))
+    ]
 ]
 
