@@ -60,8 +60,9 @@ Bsp.: alle mathematischen Funktionen sind wirkungsfrei
 
 #figure(table(
     columns: 2,
-    ..pillar.cols("c|l"),
+    // ..pillar.cols("c|l"),
     inset: 10pt,
+    fill: (x, y) => if y == 0 { blue.lighten(75%) },
 
     $"hash"(chevron.l f, v_1, v_2, ...chevron.r)$, $v_"ret"$, table.hline(),
     `1011172c6` + [...], [[Hallo]],
@@ -192,11 +193,13 @@ fn eval(sourceCode: &Source) -> Value {
         line((0, 0), (0, 1), mark: (end: ">", fill: black), stroke: 2pt, name: "aload")
         content("aload", anchor: "west", `fs.load(path)`, padding: 0.5)
 
-        content((0.25, -2.5), table(columns: 2,
+        content((0.25, -2.5), table(
+            columns: 2,
             [path], [source],
             `/chapters/chap01.typ`, [The palace still shook occasionally as ...],
             `/chapters/chap02.typ`, [The Wheel of Time turns, and Ages ...],
-            [...], [...]))
+            [...], [...],
+        ))
     })))
 ]
 
@@ -260,37 +263,78 @@ fn eval(sourceCode: &Source) -> Value {
     // problem: wenn eine datei nicht neu eingelesen wird, wie wird dann sichergestellt, dass load() dasselbe ergebnis liefert? wie stellen wir sicher, dass immernoch dasselbe in den dateien drinsteht? → ist aktuell egal, es geht nur darum, dass wir uns eben einen ausschnitt aus der anzahl der gesamtdaten anschauen müssen. der compiler sieht dann zu, dass die konkreten daten aktuell bleiben (z.B. indem alle 100ms alle dateien neu eingelesen werden)
 
     #[
-    #set text(size: 0.925em)
-    #touying-raw(```rust
-    #[comemo::memoize]
-    fn eval(sourceCode: &Source, fs: Tracked<&Fs>) -> Value { ... }
-    ```)
+        #set text(size: 0.925em)
+        #touying-raw(```rust
+        #[comemo::memoize]
+        fn eval(sourceCode: &Source, fs: Tracked<&Fs>) -> Value { ... }
+        ```)
     ]
 
-    #uncover("2-", move(dx: 9.5cm, dy: -1cm, cetz.canvas({
+    #uncover("2-", move(dx: 9.5cm, dy: -1.125cm, cetz.canvas({
         import cetz.draw: *
         import cetz.decorations: *
 
         line((0, 0), (0, 1), mark: (start: ">", fill: black), stroke: 2pt, name: "aload")
         content("aload", `fs.load(path)`, anchor: "west", padding: 0.5)
 
-        content((0.25, -2.5), table(columns: 2, inset: 7pt,
-            [path], [$"hash"(V_"ret")$],
-            place(fa-eye(), dx: -2em, dy: -0.35em) + `/chapters/chap01.typ`, `03f200a3b8bb`+[...], // [The palace still shook occasionally as ...],
-            place(fa-eye(), dx: -2em, dy: -0.35em) + [`/chapters/chap02.typ`], `2084ff93ce00`+[...], // repr([#rect]).slice(0, 40) + [...],
-            [...], [...]))
+        content((0.25, -2.85), table(
+            columns: 2,
+            inset: 10pt,
+            fill: (x, y) => if y == 0 { blue.lighten(75%) },
+            [path], [$"hash"(v_"ret")$],
+            place(fa-eye(), dx: -2em, dy: -0.35em) + `/chapters/chap01.typ`, `03f200a3b8bb` + [...],
+            // [The palace still shook occasionally as ...],
+            place(fa-eye(), dx: -2em, dy: -0.35em) + [`/chapters/chap02.typ`], `2084ff93ce00` + [...],
+            // repr([#rect]).slice(0, 40) + [...],
+            [...], [...],
+        ))
     })))
 
     #pause
     ⇒ nur relevantes Verhalten von `fs` wird getracked #pause \
-    ⇒ getrackte Argumente bilden "Constraints" für Cache-Validität
+    ⇒ getrackte Argumente bilden "Constraints" für Cache-Eintrag
+]
+
+#slide[
+    #[
+        #set text(size: 0.925em)
+        #touying-raw(```rust
+        #[comemo::memoize]
+        fn eval(sourceCode: &Source, fs: Tracked<&Fs>) -> Value { ... }
+        ```)
+    ]
+
+    - Caching dann wie folgt:
+        #cetz.canvas({
+            import cetz.draw: *
+            import cetz.decorations: *
+
+            // line((0, 0), (0, 1), mark: (start: ">", fill: black), stroke: 2pt, name: "aload")
+            // content("aload", `fs.load(path)`, anchor: "west", padding: 0.5)
+
+            content((0.25, -2.5), table(
+                fill: (x, y) => if y == 0 { blue.lighten(75%) },
+                columns: 3,
+                inset: 10pt,
+                $chevron.l v_1, v_2, ..., v_n chevron.r$, [Constraints], [$v_"ret"$],
+                [...],
+                table(
+                    fill: (x, y) => if y == 0 { blue.lighten(75%) },
+                    columns: 2,
+                    inset: 10pt,
+                    [path], [$"hash"(V_"ret")$],
+                    `/chapters/chap01.typ`, `03f200a3b8bb` + [...],
+                    [`/chapters/chap02.typ`], `2084ff93ce00` + [...],
+                ), [...]
+            ))
+    })
 ]
 
 ---
 // jetzt nochmal visuell dargestellt
 #slide[
     #pdfpc.speaker-note(```
-jeder beobachtet nur den, den er tatsächlich im cache auch braucht, nicht das gesamte Fs ist im cache
+    jeder beobachtet nur den, den er tatsächlich im cache auch braucht, nicht das gesamte Fs ist im cache
     ```)
     #let file-icon = text(size: 2.5em, fa-file())
     #let file(body) = align(center, file-icon + [\ #body])
@@ -329,5 +373,5 @@ jeder beobachtet nur den, den er tatsächlich im cache auch braucht, nicht das g
     - Constraints ermöglichen effiziente Validierung des Caches
 
     #set text(size: 0.75em)
-    (Diese Folien wurde in 2#h(0.166em)s und mit Caching in 120#h(0.166em)ms kompiliert.)
+    (Diese Folien wurde in 2,5#h(0.166em)s und mit Caching in 150#h(0.166em)ms kompiliert.)
 ]

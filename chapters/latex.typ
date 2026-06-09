@@ -25,7 +25,7 @@
     "\A"
     ...
     ```)
-        + only((3, 4), ```tex
+        + only("3,4-", ```tex
         ...
         \def\A{A}
         \def\B{\def\A{C}}
@@ -34,13 +34,14 @@
         ```),
     {
         set text(size: 1.5em)
-        align(center + horizon, only(2)["A"] + only(4)["AC"])
+        align(center + horizon, only(2)["A"] + only("4-")["AC"])
     },
 )
 
 #[
     #set text(size: 1.25em)
-    #uncover(4)[⇒ `\B` nicht wirkungsfrei]
+    #pause
+    ⇒ `\B` nicht wirkungsfrei
 ]
 
 #slide[

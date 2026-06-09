@@ -100,7 +100,7 @@
     Weitere Typst-Beispiele
 ]
 
-#show image: block.with(stroke: 1pt)
+#show image: it => block(stroke: 2pt, box(fill: white, it))
 #set align(center)
 #set stack(dir: ltr, spacing: 0.5em)
 
